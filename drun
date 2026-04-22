@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+envfile="$1"
+script="$2"
+shift 2
+if [ -z "$envfile" ] || [ -z "$script" ]; then
+  echo "Usage: dbun <env-file> <script> [script-args...]"
+  exit 2
+fi
+
+if command -v dotenv >/dev/null 2>&1; then
+  DOTENV_CMD=("dotenv")
+elif command -v bunx >/dev/null 2>&1; then
+  DOTENV_CMD=("bunx" "dotenv")
+elif [ -x "./node_modules/.bin/dotenv" ]; then
+  DOTENV_CMD=("./node_modules/.bin/dotenv")
+else
+  echo "dotenv CLI not found. Install with: bun add -d dotenv-cli"
+  exit 127
+fi
+echo "Running: ${DOTENV_CMD[*]} -o -e $envfile -- bun run $script $*"
+"${DOTENV_CMD[@]}" -o -e "$envfile" -- bun run "$script" "$@"
